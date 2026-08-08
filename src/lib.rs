@@ -43,7 +43,9 @@ pub use dispatcher::{NmiDispatcher, NmiError};
 pub use telemetry::{TelemetryFrame, SensorPayload, Status};
 pub use tension::{Tension, ConservationBudget};
 pub use claw_adapter::ClawNmiAdapter;
-pub use pincher_hook::{PincherHook, ReflexTrigger, ReflexMatch};
+pub use pincher_hook::{PincherHook, ReflexTrigger, ReflexMatch, EXACT_THRESHOLD, SIMILAR_THRESHOLD, MatchType, ReflexAction};
+pub use claw_adapter::{ClawInstance, AgentState, EquipmentSlot};
+pub use telemetry::ContactState;
 
 /// The core trait defining the neuro-muscular boundary.
 ///
