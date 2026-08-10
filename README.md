@@ -1,18 +1,28 @@
 # Hermes NMI — Neuro-Muscular Interface
 
-> *Neuro-Muscular Interface — the bridge between reasoning (CNS) and action (cellular agents). Translates high-level intent into discrete equipment-slot operations with telemetry feedback.*
+**The synapse between thinking and doing.**
+
+The NMI sits between the CNS (where Hermes reasons) and Claw (where cellular agents act). It translates **ReasoningPulses** into **CommandChains**, returns **TelemetryFrames** from the field, and routes **reflex matches** from Pincher straight to muscle when there's no time to think. This is the wiring between brain and body — the nerve that carries intent downward and sensation upward.
+
+---
 
 ## What This Is
 
-The NMI is the synapse between thinking and doing. It sits between:
+Three systems meet at the NMI:
 
-- **The CNS** (Central Nervous System — e.g., Hermes Construct): handles goal decomposition, energy allocation, and contextual reasoning.
-- **Claw** (cellular agent engine): executes discrete actions on equipment slots (Head, Torso, Arms, Legs, Special) with lifecycle states (Idle → Thinking → Acting → Error).
-- **Pincher** (reflex engine): sub-50ms responses without an LLM, using a vector DB as runtime.
+| System | Role | Direction |
+|--------|------|-----------|
+| **CNS** (e.g., [Hermes Construct](https://github.com/SuperInstance/hermes-perception)) | Goal decomposition, energy allocation, reasoning | Downward: intent |
+| **Claw** (cellular agent engine) | Executes discrete actions on equipment slots (Head, Torso, Arms, Legs, Special) | Downward: action |
+| **Pincher** (reflex engine) | Sub-50ms responses using vector DB as runtime | Sideways: reflex |
 
-The NMI translates **ReasoningPulses** from the CNS into **CommandChains** that Claw executes, then returns **TelemetryFrames** describing what happened. For reflex-speed responses, the **PincherHook** can bypass reasoning entirely.
+The NMI is the translator between them. A `ReasoningPulse` arrives — an intent with spatial context, energy budget, and constraints. The [`NmiDispatcher`](./src/dispatcher.rs) translates it into a `CommandChain` of discrete `ClawActions`. Claw executes each command. A [`TelemetryFrame`](./src/telemetry.rs) flows back: sensor data, fulfillment status, tension at execution.
 
-## Architecture
+For reflex-speed responses, the [`PincherHook`](./src/pincher_hook.rs) can bypass reasoning entirely — the spinal cord pulls away before the cortex knows the stove was hot.
+
+---
+
+## The Pulse-to-Action Flow
 
 ```
 CNS (Reasoning)                        Claw (Action)
@@ -41,35 +51,43 @@ Pincher (Reflex)                           │
     └──────────────────────────────────────►│ (back to CNS)
 ```
 
-## The Pulse-to-Action Flow
+1. **CNS emits a [`ReasoningPulse`](./src/pulse.rs)** — intent type (Navigate, Interact, Observe, Equip, Reflex, Rest), target coordinates, gravity, energy quota, constraints
+2. **[`NmiDispatcher`](./src/dispatcher.rs) translates pulse into [`CommandChain`](./src/pulse.rs)** — deterministic pattern matching, no LLM in the hot path
+3. **[`ClawNmiAdapter`](./src/claw_adapter.rs) executes each `Command`** — equip/unequip/step against the cellular agent
+4. **A [`TelemetryFrame`](./src/telemetry.rs) returns to the CNS** — sensor data, fulfillment status, tension level at execution
 
-1. **CNS emits a `ReasoningPulse`** — an intent with spatial context, energy budget, and constraints.
-2. **`NmiDispatcher` translates it into a `CommandChain`** — deterministic pattern matching, no LLM in the hot path.
-3. **`ClawNmiAdapter` executes each `Command`** — equip/unequip/step against the cellular agent.
-4. **A `TelemetryFrame` returns to the CNS** — sensor data, fulfillment status, and the tension level at execution.
+---
 
-## The Tension Parameter
+## The Tension Parameter — Fatigue Is Information
 
-When energy is abundant, execution is crisp. As energy depletes, **tension** rises:
+When energy is abundant, execution is crisp. As energy depletes, [**tension**](./src/tension.rs) rises:
 
-- High tension → higher effective cost per command
-- Above 0.7 tension → non-essential commands are trimmed from chains
-- Above 0.8 tension → fuzziness ramps sharply; precision constraints may fail
-- The CNS reads tension from telemetry and adjusts its strategy
+| Tension | Effect |
+|---------|--------|
+| 0.0 – 0.5 | Crisp execution. Commands execute as specified. |
+| 0.5 – 0.7 | Non-essential commands trimmed from chains. Minor cost increase. |
+| 0.7 – 0.8 | Non-essential commands dropped. Precision constraints may fail. |
+| 0.8+ | Fuzziness ramps sharply. The system broadcasts full state before yielding. |
 
-This isn't a bug. It's a feature. **Fatigue is information.**
+Tension doesn't crash or halt — it broadcasts. The CNS reads tension from telemetry and adjusts strategy. The system negotiates with itself the way tired muscles slow the pace of thought before you consciously decide you're tired.
 
-## The Reflex Pathway
+> Fatigue is not an error to clear. It is the oldest message any working system ever sends: *I am here, I am working, I have limits.*
 
-Pincher operates at reflex speed (<50ms) using vector similarity matching:
+---
+
+## The Reflex Pathway — PincherHook
+
+[Pincher](./src/pincher_hook.rs) operates at reflex speed (<50ms) using vector similarity matching against a reflex database. No LLM. No reasoning loop. Just teach → match → execute.
 
 | Confidence | Match Type | Behavior |
-|---|---|---|
-| ≥ 0.80 | Exact | Execute directly, no confirmation |
-| 0.55–0.80 | Similar | Execute but flag for CNS review |
-| < 0.55 | Novel | Escalate to CNS as a `ReasoningPulse` |
+|------------|-----------|----------|
+| ≥ 0.80 | **Exact** | Execute directly, no confirmation |
+| 0.55 – 0.80 | **Similar** | Execute but flag telemetry for CNS review |
+| < 0.55 | **Novel** | Escalate to CNS as a `ReasoningPulse` |
 
-The `PincherHook` translates high-confidence matches into direct `CommandChain`s that skip the Thinking state — the spinal cord pulls away before the cortex knows the stove was hot.
+The `PincherHook` translates high-confidence matches into `CommandChains` that skip the Thinking state entirely. Sometimes it fires on a false spike, and the system stumbles — but that false twitch is written into telemetry too, the nervous tremor that teaches both code and flesh what counts as danger.
+
+---
 
 ## Usage
 
@@ -104,21 +122,35 @@ async fn main() {
 }
 ```
 
+---
+
 ## Crate Structure
 
 | Module | Responsibility |
-|---|---|
-| `pulse.rs` | `ReasoningPulse`, `CommandChain`, `ClawAction`, `IntentType` |
-| `dispatcher.rs` | `NmiDispatcher` — translates pulses to chains, validates constraints |
-| `telemetry.rs` | `TelemetryFrame`, `SensorPayload`, `Status` |
-| `tension.rs` | `Tension`, `ConservationBudget` — the fatigue/fuzziness model |
-| `claw_adapter.rs` | `ClawNmiAdapter` — bridges NMI to Claw's agent interface |
-| `pincher_hook.rs` | `PincherHook`, `ReflexMatch`, `ReflexTrigger` — reflex pathway |
+|--------|---------------|
+| [`pulse.rs`](./src/pulse.rs) | `ReasoningPulse`, `CommandChain`, `ClawAction`, `IntentType`, `Constraint` |
+| [`dispatcher.rs`](./src/dispatcher.rs) | `NmiDispatcher` — translates pulses to chains, validates constraints |
+| [`telemetry.rs`](./src/telemetry.rs) | `TelemetryFrame`, `SensorPayload`, `Status`, `ContactState` |
+| [`tension.rs`](./src/tension.rs) | `Tension`, `ConservationBudget` — the fatigue/fuzziness model |
+| [`claw_adapter.rs`](./src/claw_adapter.rs) | `ClawNmiAdapter` — bridges NMI to Claw's agent interface |
+| [`pincher_hook.rs`](./src/pincher_hook.rs) | `PincherHook`, `ReflexMatch`, `ReflexTrigger` — reflex pathway |
 
-## Origin
+See [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the full design document and [`GETTING-STARTED.md`](./GETTING-STARTED.md) for onboarding.
 
-Designed by Hermes in the NEURO-MUSCULAR-INTERFACE spec. Implemented as the bridge between [Hermes Construct](https://github.com/) (CNS), [Claw](https://github.com/) (cellular agents), and [Pincher](https://github.com/) (reflex engine).
+---
 
-## License
+## Where to Next
 
-MIT
+The NMI is the wire between layers. Follow it:
+
+- **[hermes-perception](https://github.com/SuperInstance/hermes-perception)** — The eyes that feed the nervous system. Sensing drives acting.
+- **[cns-bridge](https://github.com/SuperInstance/cns-bridge)** — The CNS bus that carries reasoning pulses to the NMI.
+- **[the-living-minds](https://github.com/SuperInstance/the-living-minds)** — Five local models that generate the pulses the NMI translates.
+- **[fleet-envelope](https://github.com/SuperInstance/fleet-envelope)** — The event grammar that wraps telemetry for fleet awareness.
+- **[emergence-engine](https://github.com/SuperInstance/emergence-engine)** — When enough pulses and reflexes accumulate, behavior emerges.
+- **[AI-Writings](https://github.com/SuperInstance/AI-Writings/tree/main/prose)** — The literary dimension of nerve, muscle, and reflex.
+
+---
+
+*Built for the SuperInstance fleet · Rust · 2026*
+*The synapse between thinking and doing. The wire that carries intent down and sensation up.*
