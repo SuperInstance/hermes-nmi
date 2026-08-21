@@ -175,7 +175,7 @@ the-living-minds (cognition) → cns-bridge (nervous system) → hermes-nmi (syn
                                                             pincher_hook (reflex)
 ```
 
-The NMI completes the cognitive stack: perception ([Hermes Cloudflare](https://github.com/SuperInstance/hermes-cloudflare)) → reasoning ([Living Minds](https://github.com/SuperInstance/the-living-minds)) (dead) (dead) → nervous system ([CNS Bridge](https://github.com/SuperInstance/cns-bridge)) → synapse (NMI) → action (Claw). The [Fleet Envelope](https://github.com/SuperInstance/fleet-envelope) wraps every stage as an event. The [Emergence Engine](https://github.com/SuperInstance/emergence-engine) watches what accumulates.
+The NMI completes the cognitive stack: perception ([Hermes Cloudflare](https://github.com/SuperInstance/hermes-cloudflare)) → reasoning ([Living Minds](https://github.com/SuperInstance/the-living-minds)) (dead) → nervous system ([CNS Bridge](https://github.com/SuperInstance/cns-bridge)) → synapse (NMI) → action (Claw). The [Fleet Envelope](https://github.com/SuperInstance/fleet-envelope) wraps every stage as an event. The [Emergence Engine](https://github.com/SuperInstance/emergence-engine) watches what accumulates.
 
 ### Cross-Pollination
 
