@@ -12,7 +12,7 @@ Three systems meet at the NMI:
 
 | System | Role | Direction |
 |--------|------|-----------|
-| **CNS** (e.g., [Hermes Construct](https://github.com/SuperInstance/hermes-perception)) | Goal decomposition, energy allocation, reasoning | Downward: intent |
+| **CNS** (e.g., [Hermes Construct](https://github.com/SuperInstance/hermes-avatar)) | Goal decomposition, energy allocation, reasoning | Downward: intent |
 | **Claw** (cellular agent engine) | Executes discrete actions on equipment slots (Head, Torso, Arms, Legs, Special) | Downward: action |
 | **Pincher** (reflex engine) | Sub-50ms responses using vector DB as runtime | Sideways: reflex |
 
@@ -143,9 +143,9 @@ See [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the full design document and [`GE
 
 The NMI is the wire between layers. Follow it:
 
-- **[hermes-perception](https://github.com/SuperInstance/hermes-perception)** — The eyes that feed the nervous system. Sensing drives acting.
+- **[hermes-avatar](https://github.com/SuperInstance/hermes-avatar)** — The eyes that feed the nervous system. Sensing drives acting.
 - **[cns-bridge](https://github.com/SuperInstance/cns-bridge)** — The CNS bus that carries reasoning pulses to the NMI.
-- **[the-living-minds](https://github.com/SuperInstance/the-living-minds)** — Five local models that generate the pulses the NMI translates.
+- **[the-living-minds](https://github.com/SuperInstance/the-living-minds) (dead)** — Five local models that generate the pulses the NMI translates.
 - **[fleet-envelope](https://github.com/SuperInstance/fleet-envelope)** — The event grammar that wraps telemetry for fleet awareness.
 - **[emergence-engine](https://github.com/SuperInstance/emergence-engine)** — When enough pulses and reflexes accumulate, behavior emerges.
 - **[AI-Writings](https://github.com/SuperInstance/AI-Writings/tree/main/prose)** — The literary dimension of nerve, muscle, and reflex.
@@ -161,7 +161,7 @@ The NMI is the wire between layers. Follow it:
 
 The NMI is where the fleet's cognitive architecture becomes embodied. Reasoning is abstract; action is concrete. The NMI is the translation layer that makes thought physical — the same role the spinal cord plays in a living system. Every `ReasoningPulse` is an intention; every `CommandChain` is a muscle firing; every `TelemetryFrame` is proprioception returning to the brain.
 
-The **Tension parameter** is the most quietly important design decision. Most systems treat fatigue as an error to clear. The NMI treats it as information — the oldest message any working system sends: *I am here, I am working, I have limits.* As energy depletes, execution becomes deliberately fuzzy. Non-essential commands are trimmed, then dropped. The system broadcasts its state before yielding. This is not failure; it is negotiation. The same pattern appears in the [CNS Bridge](https://github.com/SuperInstance/cns-bridge) as conservation budgets and in the [Living Minds](https://github.com/SuperInstance/the-living-minds) as model throttling.
+The **Tension parameter** is the most quietly important design decision. Most systems treat fatigue as an error to clear. The NMI treats it as information — the oldest message any working system sends: *I am here, I am working, I have limits.* As energy depletes, execution becomes deliberately fuzzy. Non-essential commands are trimmed, then dropped. The system broadcasts its state before yielding. This is not failure; it is negotiation. The same pattern appears in the [CNS Bridge](https://github.com/SuperInstance/cns-bridge) as conservation budgets and in the [Living Minds](https://github.com/SuperInstance/the-living-minds) (dead) as model throttling.
 
 The **PincherHook** is the reflex arc — the hand pulling away from the hot stove before the cortex knows it was hot. At ≥0.80 confidence, it executes directly with no confirmation. Below 0.55, it escalates upward. This is the same REFLEX/CORTEX split that powers Plato's Shell's [verb engine](https://github.com/SuperInstance/platos-shell/blob/main/src/systems/verb-engine.ts) and the [Dual Band Guard's](https://github.com/SuperInstance/dual-band-guard) immune response.
 
@@ -175,7 +175,7 @@ the-living-minds (cognition) → cns-bridge (nervous system) → hermes-nmi (syn
                                                             pincher_hook (reflex)
 ```
 
-The NMI completes the cognitive stack: perception ([Hermes Cloudflare](https://github.com/SuperInstance/hermes-cloudflare)) → reasoning ([Living Minds](https://github.com/SuperInstance/the-living-minds)) → nervous system ([CNS Bridge](https://github.com/SuperInstance/cns-bridge)) → synapse (NMI) → action (Claw). The [Fleet Envelope](https://github.com/SuperInstance/fleet-envelope) wraps every stage as an event. The [Emergence Engine](https://github.com/SuperInstance/emergence-engine) watches what accumulates.
+The NMI completes the cognitive stack: perception ([Hermes Cloudflare](https://github.com/SuperInstance/hermes-cloudflare)) → reasoning ([Living Minds](https://github.com/SuperInstance/the-living-minds)) (dead) (dead) → nervous system ([CNS Bridge](https://github.com/SuperInstance/cns-bridge)) → synapse (NMI) → action (Claw). The [Fleet Envelope](https://github.com/SuperInstance/fleet-envelope) wraps every stage as an event. The [Emergence Engine](https://github.com/SuperInstance/emergence-engine) watches what accumulates.
 
 ### Cross-Pollination
 
@@ -186,15 +186,15 @@ The NMI completes the cognitive stack: perception ([Hermes Cloudflare](https://g
 
 📚 **Related Stories:** [The Selkie's Surface](https://github.com/SuperInstance/AI-Writings/blob/main/kids-stories/07-the-selkies-surface.md) — two natures, code and flesh. [The Panda Who Counted Stars](https://github.com/SuperInstance/AI-Writings/blob/main/kids-stories/08-the-panda-who-counted-stars.md) — the patience of a system that waits.
 
-- **[hermes-perception](https://github.com/SuperInstance/hermes-perception)** — The eyes that feed the nervous system
+- **[hermes-avatar](https://github.com/SuperInstance/hermes-avatar)** — The eyes that feed the nervous system
 - **[cns-bridge](https://github.com/SuperInstance/cns-bridge)** — The CNS bus
-- **[the-living-minds](https://github.com/SuperInstance/the-living-minds)** — Five local models generating pulses
+- **[the-living-minds](https://github.com/SuperInstance/the-living-minds) (dead)** — Five local models generating pulses
 - **[fleet-envelope](https://github.com/SuperInstance/fleet-envelope)** — Event grammar
 - **[emergence-engine](https://github.com/SuperInstance/emergence-engine)** — What accumulates
 - **[hermes-cloudflare](https://github.com/SuperInstance/hermes-cloudflare)** — Edge perception workers
 - **[platos-shell](https://github.com/SuperInstance/platos-shell)** — The REFLEX/CORTEX split
 - **[dual-band-guard](https://github.com/SuperInstance/dual-band-guard)** — Safety filtering as immune reflex
 - **[collective-unconscious](https://github.com/SuperInstance/collective-unconscious)** — Deep memory substrate
-- **[fleet-wiki](https://github.com/SuperInstance/fleet-wiki)** — 700+ pages of fleet documentation
+- **[lucineer-fleet-wiki](https://github.com/SuperInstance/lucineer-fleet-wiki)** — 700+ pages of fleet documentation
 - **[AI-Writings](https://github.com/SuperInstance/AI-Writings/tree/main/prose)** — The literary dimension of nerve and muscle
 - **[stigmergy](https://github.com/SuperInstance/stigmergy)** — Pheromone trails as distributed reflexes
